@@ -1,0 +1,61 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: neocxr
+      POSTGRES_USER: neo
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-localpass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - neocxr-net
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://neo:${DB_PASSWORD:-localpass}@db:5432/neocxr
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
+      DATA_INBOX: /data/neocxr_inbox
+      DATA_STORE: /data/neocxr_store
+      CACHE_DIR: /data/cache
+      LABELS_DIR: /data/labels
+    volumes:
+      - ./data:/data
+    depends_on:
+      - db
+    networks:
+      - neocxr-net
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    environment:
+      VITE_API_URL: http://localhost/api
+    depends_on:
+      - api
+    networks:
+      - neocxr-net
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+      - api
+    networks:
+      - neocxr-net
+
+volumes:
+  postgres_data:
+
+networks:
+  neocxr-net:
