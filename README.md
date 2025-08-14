@@ -1,56 +1,237 @@
-\# NeoCXR Segmentation System
-
-
+NeoCXR Segmentation System
 
 Neonatal chest X-ray segmentation and annotation platform for multi-user collaborative labeling.
 
+🚀 Features
 
+🏥 DICOM ingestion with automatic indexing
 
-\## Features
+🎨 Interactive scribble-based segmentation
 
+📍 Device/line annotation with polylines
 
+👥 Multi-user support with role-based access
 
-\- 🏥 DICOM ingestion with automatic indexing
+📊 Real-time statistics dashboard
 
-\- 🎨 Interactive scribble-based segmentation
+🌐 Turkish/English interface
 
-\- 📍 Device/line annotation with polylines
+📦 Export to multiple formats: JSON, PNG, DICOM-SEG
 
-\- 👥 Multi-user support with role-based access
+🛠 Quick Start
+Prerequisites
 
-\- 📊 Real-time statistics dashboard
+Docker & Docker Compose
 
-\- 🌐 Turkish/English interface
+8GB RAM minimum
 
-\- 📦 Export to multiple formats (JSON, PNG, DICOM-SEG)
+20GB disk space for data
 
-
-
-\## Quick Start
-
-
-
-\### Prerequisites
-
-
-
-\- Docker \& Docker Compose
-
-\- 8GB RAM minimum
-
-\- 20GB disk space for data
-
-
-
-\### Installation
-
-
-
-1\. Clone the repository:
-
-```bash
-
+Installation
+# 1. Clone the repository
 git clone https://github.com/your-org/neocxr-segmentation
-
 cd neocxr-segmentation
 
+# 2. Copy environment files
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+
+# 3. Update environment variables in .env files
+
+# 4. Start the services
+docker-compose up -d
+
+# 5. Initialize the database
+docker-compose exec api python -m app.scripts.init_db
+
+# 6. Load default ontology
+docker-compose exec api python -m app.scripts.load_ontology
+
+
+Access the application: http://localhost
+
+Default Credentials
+
+Email: admin@neocxr.local
+Password: admin123
+
+📂 Usage
+Adding DICOM Files
+cp your-dicom-files/*.dcm ./data/neocxr_inbox/
+
+
+Files will be automatically processed and appear in the task queue.
+
+Annotation Workflow
+
+Login and navigate to Dashboard
+
+Click "Segmentlemeye Başla" to get the next case
+
+Use annotation tools:
+
+P: Positive brush (green)
+
+N: Negative brush (red)
+
+E: Eraser
+
+[ / ]: Adjust brush size
+
+Space: Preview segmentation
+
+Ctrl+S: Save draft
+
+Complete annotation and submit.
+
+⌨ Keyboard Shortcuts
+Key	Action
+P	Positive brush
+N	Negative brush
+E	Eraser
+[ / ]	Decrease/Increase size
+Z / Y	Undo/Redo
+Space	Preview segmentation
+Ctrl+S	Save draft
+Ctrl+Enter	Submit annotation
+🏗 Architecture
+Technology Stack
+
+Frontend: React 18, TypeScript, Vite, TailwindCSS
+
+Backend: FastAPI, Python 3.11, PostgreSQL
+
+Medical Imaging: Cornerstone.js, pydicom
+
+Infrastructure: Docker, Nginx
+
+Project Structure
+neocxr-segmentation/
+├── apps/
+│   ├── web/          # React frontend
+│   └── api/          # FastAPI backend
+├── packages/
+│   ├── core/         # Shared contracts
+│   ├── ui/           # UI components
+│   └── viewer-tools/ # Annotation tools
+├── data/             # Data volumes
+└── infra/            # Infrastructure configs
+
+📜 API Documentation
+
+Swagger UI: http://localhost/api/docs
+
+ReDoc: http://localhost/api/redoc
+
+Key Endpoints
+
+POST /api/v1/auth/login — User authentication
+
+GET /api/v1/stats/overview — Dashboard statistics
+
+POST /api/v1/tasks/next — Get next annotation task
+
+POST /api/v1/annotations — Save annotations
+
+POST /api/v1/exports — Create export artifact
+
+⚙ Configuration
+Feature Flags
+FEATURE_ADJUDICATION=true    # Enable adjudication workflow
+FEATURE_SEG_PREVIEW=true     # Enable segmentation preview
+FEATURE_EXPORT=true          # Enable data export
+
+Ontology Configuration
+
+Edit config/ontology.yaml:
+
+pathologies:
+  - name: Pneumothorax
+    name_tr: Pnömotoraks
+    color: '#ff0000'
+    priority: 1
+    
+devices:
+  - name: ETT
+    name_tr: Endotrakeal Tüp
+    color: '#0066ff'
+    priority: 101
+
+🧑‍💻 Development
+Local Development
+
+Backend:
+
+cd apps/api
+pip install -r requirements-dev.txt
+uvicorn app.main:app --reload
+
+
+Frontend:
+
+cd apps/web
+npm install
+npm run dev
+
+✅ Testing
+# Backend tests
+cd apps/api
+pytest
+
+# Frontend tests
+cd apps/web
+npm test
+
+# E2E tests
+npm run test:e2e
+
+📦 Building for Production
+docker-compose -f docker-compose.prod.yml build
+docker-compose -f docker-compose.prod.yml up -d
+
+🛠 Troubleshooting
+
+DICOM files not appearing: Check inbox permissions and logs
+
+Login fails: Verify JWT_SECRET is set
+
+Viewer black screen: Check CORS settings
+
+View Logs
+
+# All logs
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f api
+
+🤝 Contributing
+
+Fork the repository
+
+Create a feature branch:
+
+git checkout -b feature/amazing-feature
+
+
+Commit your changes:
+
+git commit -m "Add amazing feature"
+
+
+Push to branch:
+
+git push origin feature/amazing-feature
+
+
+Open a Pull Request
+
+📄 License
+
+This project is licensed under the MIT License – see the LICENSE file for details.
+
+📬 Support
+
+GitHub Issues: https://github.com/your-org/neocxr-segmentation/issues
+
+Email: support@neocxr.local
